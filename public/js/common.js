@@ -138,50 +138,50 @@ function showToast(message, type = 'info', title = '', duration = 4000) {
   const toast = document.createElement('div');
   const typeConfig = {
     success: {
-      bg: 'bg-emerald-950/90 border-emerald-500/50 text-emerald-100',
-      icon: 'fa-circle-check text-emerald-400',
+      bg: 'bg-white border-emerald-300 text-emerald-950 shadow-lg',
+      icon: 'fa-circle-check text-emerald-600',
       defaultTitle: 'Success'
     },
     error: {
-      bg: 'bg-rose-950/90 border-rose-500/50 text-rose-100',
-      icon: 'fa-circle-exclamation text-rose-400',
+      bg: 'bg-white border-rose-300 text-rose-950 shadow-lg',
+      icon: 'fa-circle-exclamation text-rose-600',
       defaultTitle: 'Error'
     },
     warning: {
-      bg: 'bg-amber-950/90 border-amber-500/50 text-amber-100',
-      icon: 'fa-triangle-exclamation text-amber-400',
+      bg: 'bg-white border-amber-300 text-amber-950 shadow-lg',
+      icon: 'fa-triangle-exclamation text-amber-600',
       defaultTitle: 'Notice'
     },
     question: {
-      bg: 'bg-indigo-950/90 border-indigo-500/50 text-indigo-100',
-      icon: 'fa-circle-question text-indigo-400',
+      bg: 'bg-white border-indigo-300 text-indigo-950 shadow-lg',
+      icon: 'fa-circle-question text-indigo-600',
       defaultTitle: 'New Question'
     },
     answer: {
-      bg: 'bg-emerald-950/90 border-emerald-500/50 text-emerald-400',
-      icon: 'fa-lightbulb text-emerald-400',
-      defaultTitle: 'Answer Received!'
+      bg: 'bg-emerald-50 border-emerald-400 text-emerald-950 shadow-lg',
+      icon: 'fa-circle-check text-emerald-600',
+      defaultTitle: 'Answer Ready!'
     },
     info: {
-      bg: 'bg-slate-900/90 border-slate-700 text-slate-100',
-      icon: 'fa-circle-info text-sky-400',
+      bg: 'bg-white border-slate-300 text-slate-900 shadow-lg',
+      icon: 'fa-circle-info text-indigo-600',
       defaultTitle: 'Update'
     }
   }[type] || {
-    bg: 'bg-slate-900/90 border-slate-700 text-slate-100',
-    icon: 'fa-circle-info text-sky-400',
+    bg: 'bg-white border-slate-300 text-slate-900 shadow-lg',
+    icon: 'fa-circle-info text-indigo-600',
     defaultTitle: 'Notice'
   };
 
-  toast.className = `toast glass-panel p-4 rounded-xl border flex items-start gap-3 transform transition-all duration-300 animate-slide-down ${typeConfig.bg}`;
+  toast.className = `toast p-3.5 rounded-xl border flex items-start gap-3 transform transition-all duration-200 animate-slide-down ${typeConfig.bg}`;
   
   toast.innerHTML = `
-    <i class="fa-solid ${typeConfig.icon} text-lg mt-0.5"></i>
+    <i class="fa-solid ${typeConfig.icon} text-base mt-0.5"></i>
     <div class="flex-1">
-      <div class="font-bold text-sm text-white">${title || typeConfig.defaultTitle}</div>
-      <div class="text-xs text-slate-200 mt-0.5 leading-relaxed">${escapeHtml(message)}</div>
+      <div class="font-bold text-xs text-slate-900">${title || typeConfig.defaultTitle}</div>
+      <div class="text-xs text-slate-600 mt-0.5 leading-relaxed">${escapeHtml(message)}</div>
     </div>
-    <button class="text-slate-400 hover:text-white text-xs p-1" onclick="this.parentElement.remove()">
+    <button class="text-slate-400 hover:text-slate-700 text-xs p-1" onclick="this.parentElement.remove()">
       <i class="fa-solid fa-xmark"></i>
     </button>
   `;

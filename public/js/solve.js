@@ -147,14 +147,14 @@ function openAnswerModal(id) {
   // Render question context preview in modal
   const ref = document.getElementById('modal-q-reference');
   ref.innerHTML = `
-    <div class="font-bold text-white mb-1 flex items-center gap-2">
+    <div class="font-bold text-slate-900 mb-1 flex items-center gap-2">
       <span>${escapeHtml(q.title)}</span>
-      <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono">${q.subject}</span>
+      <span class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-mono">${q.subject}</span>
     </div>
-    ${q.details ? `<div class="text-slate-300 line-clamp-3 text-xs mb-2">${renderContent(q.details)}</div>` : ''}
+    ${q.details ? `<div class="text-slate-600 line-clamp-3 text-xs mb-2 leading-relaxed">${renderContent(q.details)}</div>` : ''}
     ${q.attachments && q.attachments.length > 0 ? `
       <div class="flex gap-2">
-        ${q.attachments.map(img => `<img src="${img}" class="w-14 h-14 rounded object-cover border border-slate-700 cursor-pointer" onclick="openImageModal('${img}')">`).join('')}
+        ${q.attachments.map(img => `<img src="${img}" class="w-14 h-14 rounded object-cover border border-slate-200 cursor-pointer shadow-sm" onclick="openImageModal('${img}')">`).join('')}
       </div>
     ` : ''}
   `;

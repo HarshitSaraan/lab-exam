@@ -274,16 +274,16 @@ function renderFeed() {
     filtered = questionsList.filter(q => q.status === 'solved');
   }
 
-  countBadge.textContent = `${questionsList.length} Questions`;
+  if (countBadge) countBadge.textContent = `${questionsList.length}`;
 
   if (filtered.length === 0) {
     feed.innerHTML = `
-      <div class="p-12 text-center rounded-2xl glass-panel border border-slate-800 flex flex-col items-center justify-center gap-3">
-        <div class="w-14 h-14 rounded-2xl bg-slate-800/80 flex items-center justify-center text-slate-500 text-xl">
+      <div class="light-card p-12 text-center rounded-2xl bg-white flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-xl">
           <i class="fa-solid fa-inbox"></i>
         </div>
-        <div class="text-sm font-bold text-white">No questions in "${currentFilter}" filter</div>
-        <p class="text-xs text-slate-400">Post a question or switch filters to view more.</p>
+        <div class="text-sm font-bold text-slate-900">No questions in "${currentFilter}" filter</div>
+        <p class="text-xs text-slate-500 max-w-xs">Upload a question on the left to see it appear here.</p>
       </div>
     `;
     return;
@@ -294,33 +294,33 @@ function renderFeed() {
   filtered.forEach((q) => {
     const card = document.createElement('div');
     card.id = `q-card-${q.id}`;
-    card.className = 'glass-panel p-5 rounded-2xl border border-slate-800/80 transition-all duration-300 relative';
+    card.className = 'light-card p-5 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-200 relative';
 
     // Urgency pill
     const urgencyBadge = {
-      urgent: '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-bold"><i class="fa-solid fa-fire text-rose-400 mr-1"></i>URGENT</span>',
-      high: '<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>HIGH</span>',
-      normal: '<span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-medium">Normal</span>'
+      urgent: '<span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">URGENT</span>',
+      high: '<span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">HIGH</span>',
+      normal: '<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">Normal</span>'
     }[q.urgency] || '';
 
     // Status pill
     let statusPill = '';
     if (q.status === 'pending') {
       statusPill = `
-        <span class="px-2.5 py-1 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5">
-          <i class="fa-solid fa-hourglass-start animate-spin"></i> Waiting for Solver
+        <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-hourglass-start animate-spin text-[10px]"></i> Waiting
         </span>
       `;
     } else if (q.status === 'in_progress') {
       statusPill = `
-        <span class="px-2.5 py-1 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
-          <i class="fa-solid fa-bolt text-indigo-400"></i> Solver Working On It...
+        <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
+          <i class="fa-solid fa-bolt text-indigo-600 text-[10px]"></i> Solving...
         </span>
       `;
     } else if (q.status === 'solved') {
       statusPill = `
-        <span class="px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5">
-          <i class="fa-solid fa-circle-check text-emerald-400"></i> Solved!
+        <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-check text-emerald-600 text-[10px]"></i> Solved
         </span>
       `;
     }
@@ -332,8 +332,8 @@ function renderFeed() {
         <div class="mt-3 flex flex-wrap gap-2">
           ${q.attachments.map(url => `
             <div class="group relative cursor-pointer" onclick="openImageModal('${url}')">
-              <img src="${url}" class="w-20 h-20 object-cover rounded-lg border border-slate-700 hover:border-indigo-500 transition shadow">
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center text-white text-xs transition">
+              <img src="${url}" class="w-20 h-20 object-cover rounded-lg border border-slate-200 hover:border-indigo-500 transition shadow-sm">
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center text-white text-xs transition">
                 <i class="fa-solid fa-magnifying-glass-plus"></i>
               </div>
             </div>
@@ -347,13 +347,13 @@ function renderFeed() {
     if (q.code) {
       codeHtml = `
         <div class="mt-3 relative">
-          <div class="flex items-center justify-between text-[11px] bg-slate-900 px-3 py-1.5 rounded-t-lg border-t border-x border-slate-800 text-slate-400 font-mono">
-            <span>${q.language || 'Code'}</span>
+          <div class="flex items-center justify-between text-[11px] bg-slate-800 text-slate-300 px-3 py-1.5 rounded-t-lg font-mono">
+            <span>${q.language || 'Starter Code'}</span>
             <button onclick="copyToClipboard(decodeURIComponent('${encodeURIComponent(q.code)}'), this)" class="hover:text-white transition flex items-center gap-1">
               <i class="fa-solid fa-copy"></i> Copy
             </button>
           </div>
-          <pre class="rounded-b-lg border-b border-x border-slate-800 !mt-0 !text-xs"><code class="language-${q.language || 'plaintext'}">${escapeHtml(q.code)}</code></pre>
+          <pre class="rounded-b-lg border-b border-x border-slate-700 !mt-0 !text-xs"><code class="language-${q.language || 'plaintext'}">${escapeHtml(q.code)}</code></pre>
         </div>
       `;
     }
@@ -362,48 +362,48 @@ function renderFeed() {
     let answersHtml = '';
     if (q.answers && q.answers.length > 0) {
       answersHtml = `
-        <div class="mt-5 pt-4 border-t border-slate-800/80 space-y-3">
+        <div class="mt-4 pt-3 border-t border-slate-100 space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-lightbulb"></i> Solutions from Solver (${q.answers.length})
+            <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i> Solution (${q.answers.length})
             </span>
           </div>
 
           ${q.answers.map((ans, aIdx) => `
-            <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/20 text-slate-200 text-xs sm:text-sm space-y-3">
-              <div class="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-emerald-900/30">
-                <span class="font-semibold text-emerald-300 flex items-center gap-1.5">
-                  <i class="fa-solid fa-user-check"></i> ${ans.author || 'Solver'}
+            <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 text-slate-800 text-xs sm:text-sm space-y-2.5">
+              <div class="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-emerald-200/60">
+                <span class="font-semibold text-emerald-800 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-check text-emerald-600"></i> ${ans.author || 'Solver'}
                 </span>
                 <div class="flex items-center gap-2">
                   <span>${timeAgo(ans.createdAt)}</span>
                   <button 
                     onclick="copyToClipboard(decodeURIComponent('${encodeURIComponent((ans.content || '') + (ans.code ? '\n\n' + ans.code : ''))}'), this)" 
-                    class="px-2 py-0.5 rounded bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-300 text-[11px] border border-emerald-700/40 flex items-center gap-1 transition"
+                    class="px-2.5 py-1 rounded-md bg-white hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-300 flex items-center gap-1 shadow-sm transition"
                   >
-                    <i class="fa-solid fa-copy"></i> Copy Solution
+                    <i class="fa-solid fa-copy text-emerald-600"></i> Copy Solution
                   </button>
                 </div>
               </div>
 
-              ${ans.content ? `<div class="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed">${renderContent(ans.content)}</div>` : ''}
+              ${ans.content ? `<div class="text-xs sm:text-sm leading-relaxed text-slate-800">${renderContent(ans.content)}</div>` : ''}
 
               ${ans.code ? `
                 <div class="relative mt-2">
-                  <div class="flex items-center justify-between text-[11px] bg-slate-900 px-3 py-1.5 rounded-t-lg border-t border-x border-slate-800 text-slate-400 font-mono">
-                    <span>${ans.language || 'Code Solution'}</span>
+                  <div class="flex items-center justify-between text-[11px] bg-slate-800 text-slate-300 px-3 py-1.5 rounded-t-lg font-mono">
+                    <span>${ans.language || 'Solution Code'}</span>
                     <button onclick="copyToClipboard(decodeURIComponent('${encodeURIComponent(ans.code)}'), this)" class="hover:text-white transition flex items-center gap-1">
                       <i class="fa-solid fa-copy"></i> Copy Code
                     </button>
                   </div>
-                  <pre class="rounded-b-lg border-b border-x border-slate-800 !mt-0 !text-xs"><code class="language-${ans.language || 'plaintext'}">${escapeHtml(ans.code)}</code></pre>
+                  <pre class="rounded-b-lg border-b border-x border-slate-700 !mt-0 !text-xs"><code class="language-${ans.language || 'plaintext'}">${escapeHtml(ans.code)}</code></pre>
                 </div>
               ` : ''}
 
               ${ans.attachments && ans.attachments.length > 0 ? `
                 <div class="mt-2 flex flex-wrap gap-2">
                   ${ans.attachments.map(img => `
-                    <img src="${img}" class="w-20 h-20 object-cover rounded-lg border border-emerald-800/50 cursor-pointer hover:border-emerald-400 transition" onclick="openImageModal('${img}')">
+                    <img src="${img}" class="w-20 h-20 object-cover rounded-lg border border-emerald-200 cursor-pointer hover:border-emerald-500 transition" onclick="openImageModal('${img}')">
                   `).join('')}
                 </div>
               ` : ''}
@@ -413,36 +413,48 @@ function renderFeed() {
       `;
     }
 
+    // Action button to answer
+    const answerActionBtn = `
+      <button 
+        onclick="openAnswerModal('${q.id}')" 
+        class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition"
+      >
+        <i class="fa-solid fa-pen-nib"></i> ${q.answers && q.answers.length > 0 ? 'Add Answer' : 'Answer This'}
+      </button>
+    `;
+
     card.innerHTML = `
       <!-- Header -->
       <div class="flex items-start justify-between gap-2">
         <div>
-          <div class="flex items-center gap-2 mb-1.5">
-            <span class="text-xs font-mono font-bold text-indigo-400">#${q.questionNumber || '1'}</span>
-            <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-medium">${q.subject || 'General'}</span>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-mono font-bold text-indigo-600">#${q.questionNumber || '1'}</span>
+            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">${q.subject || 'General'}</span>
             ${urgencyBadge}
           </div>
-          <h4 class="text-base font-bold text-white tracking-tight">${escapeHtml(q.title)}</h4>
+          <h3 class="text-sm font-bold text-slate-900 tracking-tight">${escapeHtml(q.title)}</h3>
         </div>
         <div class="flex items-center gap-2">
           ${statusPill}
-          <button onclick="deleteQuestion('${q.id}')" class="text-slate-500 hover:text-rose-400 text-xs p-1 transition" title="Delete question">
+          <button onclick="deleteQuestion('${q.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1 transition" title="Delete question">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
       </div>
 
       <!-- Problem statement -->
-      ${q.details ? `<div class="mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed">${renderContent(q.details)}</div>` : ''}
+      ${q.details ? `<div class="mt-2 text-xs sm:text-sm text-slate-700 leading-relaxed">${renderContent(q.details)}</div>` : ''}
 
       <!-- Attachments & Code -->
       ${attachmentsHtml}
       ${codeHtml}
 
-      <!-- Time & meta footer -->
-      <div class="mt-3 pt-2 text-[11px] text-slate-500 flex items-center justify-between">
+      <!-- Action Footer -->
+      <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
         <span>Uploaded ${timeAgo(q.createdAt)}</span>
-        <span>${formatExactTime(q.createdAt)}</span>
+        <div>
+          ${answerActionBtn}
+        </div>
       </div>
 
       <!-- Answers Area -->
