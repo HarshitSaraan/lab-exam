@@ -1,7 +1,11 @@
-const socket = io({ transports: ['websocket', 'polling'] });
+const socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 5 });
 let allQuestions = [];
 let activeFilter = 'all';
 let searchQuery = '';
+
+socket.on('connect_error', () => {
+  // Graceful fallback to REST polling on serverless hosting
+});
 
 socket.emit('register_role', 'dashboard');
 

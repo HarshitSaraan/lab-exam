@@ -1,4 +1,4 @@
-const socket = io({ transports: ['websocket', 'polling'] });
+const socket = io({ transports: ['websocket', 'polling'], timeout: 5000, reconnectionAttempts: 5 });
 let currentFilter = 'all';
 let questionsList = [];
 let activeSolvingQuestionId = null;
@@ -7,6 +7,10 @@ let typingDebounceTimer = null;
 
 // Polling interval as a resilient fallback for serverless hosting
 setInterval(loadSolverQuestions, 3000);
+
+socket.on('connect_error', () => {
+  // Graceful fallback to REST polling on serverless hosting
+});
 
 // Register role
 socket.emit('register_role', 'solver');

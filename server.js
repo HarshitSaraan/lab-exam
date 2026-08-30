@@ -35,26 +35,28 @@ try {
   console.warn('Directory creation warning:', e);
 }
 
+let inMemoryDb = { questions: [] };
+
 // Database helper
 function getDb() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(raw);
+      inMemoryDb = JSON.parse(raw);
+      return inMemoryDb;
     }
   } catch (err) {
-    console.error('Error reading db.json, resetting to default:', err);
+    console.warn('Error reading db.json:', err.message);
   }
-  const defaultDb = { questions: [] };
-  fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb, null, 2));
-  return defaultDb;
+  return inMemoryDb;
 }
 
 function saveDb(data) {
+  inMemoryDb = data;
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
   } catch (err) {
-    console.error('Error saving db.json:', err);
+    console.warn('Error saving db.json:', err.message);
   }
 }
 
@@ -374,8 +376,8 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start Server (if not running in serverless / test mode)
-if (process.env.NODE_ENV !== 'test') {
+// Start Server (only when run directly via node server.js locally, not in serverless)
+if (require.main === module && !isVercel && process.env.NODE_ENV !== 'test') {
   server.listen(PORT, '0.0.0.0', () => {
     const ips = getLocalNetworkIps();
     console.log(`===================================================`);

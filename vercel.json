@@ -1,27 +1,25 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/uploads/$1"
+      "source": "/api/(.*)",
+      "destination": "/api"
     },
     {
-      "src": "/css/(.*)",
-      "dest": "/css/$1"
+      "source": "/ask",
+      "destination": "/ask.html"
     },
     {
-      "src": "/js/(.*)",
-      "dest": "/js/$1"
+      "source": "/solve",
+      "destination": "/solve.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "server.js"
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/api"
     }
   ]
 }
