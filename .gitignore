@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+
+# Persistent database data
+data/db.json
+
+# User uploads (keep directory with .gitkeep)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db

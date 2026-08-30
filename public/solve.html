@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solver Portal - Answer Questions Live</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Prism.js Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <!-- Marked.js Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- KaTeX for Math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+  
+  <!-- Navigation Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="w-9 h-9 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition" title="Back to Hub">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="text-base font-bold text-white flex items-center gap-2">
+            Solver Portal <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">Solver Mode</span>
+          </h1>
+          <p class="text-xs text-slate-400">Incoming questions &bull; Instant solution broadcaster</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Switch to Friend Asker -->
+        <a href="/ask" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 text-xs border border-indigo-500/30 transition">
+          <i class="fa-solid fa-circle-question"></i> Asker Portal
+        </a>
+
+        <!-- Mute Button -->
+        <button onclick="SoundManager.toggleMute()" class="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-volume-high mute-btn-icon"></i>
+          <span class="hidden sm:inline">Audio</span>
+        </button>
+
+        <!-- Friend Online Status Pill -->
+        <div id="friend-status-pill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-xs">
+          <span id="friend-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+          <span id="friend-status-label">Friend: Offline</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex flex-col gap-6">
+    
+    <!-- Top Solver Bar & Filters -->
+    <div class="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      
+      <!-- Solver Identifier -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-user-gear"></i>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400">Solving As</div>
+          <input 
+            type="text" 
+            id="solver-name-input" 
+            value="Harshit (Solver)" 
+            class="text-xs sm:text-sm font-bold text-emerald-300 bg-transparent border-b border-dashed border-emerald-500/40 focus:border-emerald-400 outline-none pb-0.5"
+            title="Click to edit your display name"
+          >
+        </div>
+      </div>
+
+      <!-- Filter Controls & Counter -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="unsolved-counter-badge" class="px-3 py-1.5 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+          <span id="unsolved-count-text">0 Unsolved</span>
+        </span>
+
+        <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-xs">
+          <button onclick="setSolverFilter('all')" class="solver-filter-btn px-3 py-1 rounded-lg bg-emerald-600 text-white font-semibold" data-filter="all">All</button>
+          <button onclick="setSolverFilter('pending')" class="solver-filter-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white" data-filter="pending">Pending</button>
+          <button onclick="setSolverFilter('in_progress')" class="solver-filter-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white" data-filter="in_progress">In Progress</button>
+          <button onclick="setSolverFilter('solved')" class="solver-filter-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white" data-filter="solved">Solved</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions Feed for Solver -->
+    <div id="solver-questions-feed" class="space-y-6">
+      <!-- Empty state -->
+      <div id="solver-empty-state" class="p-16 text-center rounded-2xl glass-panel border border-slate-800 flex flex-col items-center justify-center gap-3">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-950/40 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="text-base font-bold text-white">Listening for Incoming Questions...</div>
+        <p class="text-xs text-slate-400 max-w-md leading-relaxed">
+          Keep this tab open. When your friend uploads a question or pastes a screenshot, you'll hear a live chime and the question will instantly pop up here.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal / Floating Answer Drawer -->
+  <div id="answer-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 hidden animate-pop-in">
+    <div class="glass-panel w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border border-emerald-500/40 shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-pen-nib"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              Compose Solution <span id="modal-q-badge" class="text-xs px-2 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono">Q#1</span>
+            </h3>
+            <p id="modal-q-title" class="text-xs text-slate-400 truncate max-w-md">Question title</p>
+          </div>
+        </div>
+        <button onclick="closeAnswerModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4 flex-1">
+        
+        <!-- Question context snippet in modal for reference -->
+        <div id="modal-q-reference" class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300"></div>
+
+        <!-- Markdown / Solution Explanation -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-align-left text-emerald-400"></i> Solution Explanation / Steps (Markdown & Math supported)
+            </label>
+            <span class="text-[10px] text-slate-500">Supports $LaTeX$ and **Markdown**</span>
+          </div>
+          <textarea 
+            id="ans-content" 
+            rows="5" 
+            placeholder="Write clear explanation, step-by-step logic, complexity analysis, or formulas..." 
+            class="w-full text-xs sm:text-sm rounded-xl glass-input p-3 bg-slate-900 border-slate-700 resize-y"
+            oninput="handleTypingNotification()"
+          ></textarea>
+        </div>
+
+        <!-- Code Solution Box -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-code text-emerald-400"></i> Code Solution
+            </label>
+            <select id="ans-code-lang" class="text-xs rounded-lg glass-input px-2.5 py-1 bg-slate-900 border-slate-700">
+              <option value="python">Python</option>
+              <option value="cpp">C / C++</option>
+              <option value="java">Java</option>
+              <option value="javascript">JavaScript</option>
+              <option value="sql">SQL</option>
+              <option value="plaintext">Plain Text</option>
+            </select>
+          </div>
+          <textarea 
+            id="ans-code" 
+            rows="6" 
+            placeholder="// Paste clean, working solution code here..." 
+            class="w-full text-xs font-mono rounded-xl glass-input p-3 bg-slate-950 border-slate-700 resize-y"
+            oninput="handleTypingNotification()"
+          ></textarea>
+        </div>
+
+        <!-- Solution Attachment / Screenshot Dropzone -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300">
+              <i class="fa-solid fa-image text-emerald-400"></i> Solution Diagram / Screenshot
+            </label>
+            <span class="text-[10px] text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800">
+              Paste with Ctrl+V
+            </span>
+          </div>
+
+          <div 
+            id="ans-dropzone" 
+            class="dropzone p-3 rounded-xl text-center bg-slate-900/40 cursor-pointer hover:bg-slate-800/40 transition flex flex-col items-center justify-center gap-1"
+            onclick="document.getElementById('ans-file-input').click()"
+          >
+            <i class="fa-solid fa-cloud-arrow-up text-lg text-emerald-400"></i>
+            <div class="text-xs text-slate-300">Click to upload diagram or press <kbd class="px-1 py-0.2 rounded bg-slate-800 font-mono text-emerald-300">Ctrl+V</kbd></div>
+            <input type="file" id="ans-file-input" class="hidden" accept="image/*" onchange="handleAnswerFileSelected(event)">
+          </div>
+
+          <!-- Uploaded solution image previews -->
+          <div id="ans-attachments-preview" class="grid grid-cols-4 gap-2 mt-2"></div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="px-6 py-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-end gap-3">
+        <button onclick="closeAnswerModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+          Cancel
+        </button>
+        <button 
+          id="post-answer-btn" 
+          onclick="submitAnswer()" 
+          class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition"
+        >
+          <i class="fa-solid fa-paper-plane"></i> Broadcast Answer Live
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/solve.js"></script>
+</body>
+</html>
