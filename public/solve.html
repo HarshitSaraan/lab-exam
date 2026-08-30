@@ -3,319 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solver - Answer Questions</title>
-  <!-- Tailwind CSS CDN -->
+  <title>ExamLive - Image Upload & Live Sync</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Prism.js Syntax Highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-  <!-- Marked.js Markdown parser -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- KaTeX for Math rendering -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
   
-  <!-- Minimal Header -->
   <header class="border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <a href="/" class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-sm font-bold text-sm">
-          <i class="fa-solid fa-code-branch"></i>
+        <a href="/" class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm font-bold text-sm">
+          <i class="fa-solid fa-bolt"></i>
         </a>
         <span class="font-bold text-base tracking-tight text-slate-900">ExamLive</span>
-        <span class="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-100">Solver Portal</span>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Live status -->
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Live Sync</span>
         </div>
-
-        <!-- Audio mute toggle -->
-        <button onclick="SoundManager.toggleMute()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs border border-slate-200 transition flex items-center gap-1.5" title="Toggle audio chime">
+        <button onclick="SoundManager.toggleMute()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs border border-slate-200 transition flex items-center gap-1.5">
           <i class="fa-solid fa-volume-high mute-btn-icon"></i>
           <span class="hidden sm:inline">Sound</span>
+        </button>
+        <button onclick="clearAllPrompt()" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs border border-rose-200 transition flex items-center gap-1">
+          <i class="fa-solid fa-trash-can"></i>
+          <span class="hidden sm:inline">Reset</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main 2-Section Workspace -->
-  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
     
-    <!-- LEFT: 📤 1. Upload Question (5 columns) -->
-    <div class="lg:col-span-5 flex flex-col gap-4">
-      <div class="light-card p-5 rounded-2xl bg-white sticky top-20">
-        
-        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> 1. Upload Question
-          </h2>
-          <span class="text-[11px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100">Asker</span>
+    <!-- BOX 1: 📤 LEFT - Upload Question Image -->
+    <div id="question-box" class="light-card p-5 rounded-2xl bg-white flex flex-col gap-4 border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-circle-question"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">1. Question Images</h2>
+            <p class="text-[11px] text-slate-500">Upload or paste question screenshots</p>
+          </div>
         </div>
+        <span id="question-count-badge" class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">0</span>
+      </div>
 
-        <form id="question-form" class="space-y-3.5" onsubmit="handleQuestionSubmit(event)">
-          
-          <!-- Subject & Priority -->
-          <div class="grid grid-cols-2 gap-2.5">
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Subject</label>
-              <select id="q-subject" class="w-full text-xs rounded-lg light-input p-2 bg-white">
-                <option value="General">General / All</option>
-                <option value="DSA / Algorithms">DSA / Algorithms</option>
-                <option value="Python">Python</option>
-                <option value="Java">Java</option>
-                <option value="C / C++">C / C++</option>
-                <option value="Web Dev / JS">Web Dev / JS</option>
-                <option value="Database / SQL">Database / SQL</option>
-                <option value="OS / Networks">OS / Networks</option>
-                <option value="Math">Math</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Urgency</label>
-              <select id="q-urgency" class="w-full text-xs rounded-lg light-input p-2 bg-white">
-                <option value="normal">Normal</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
+      <div 
+        id="question-dropzone" 
+        class="dropzone p-6 rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center gap-2 transition hover:border-indigo-500 hover:bg-indigo-50/50"
+        onclick="document.getElementById('question-file-input').click()"
+      >
+        <div class="w-12 h-12 rounded-xl bg-indigo-100/60 text-indigo-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-900">Click to upload or press <kbd class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-mono text-xs font-semibold">Ctrl+V</kbd></div>
+          <div class="text-xs text-slate-500 mt-0.5">Paste or drop Question image here</div>
+        </div>
+        <input type="file" id="question-file-input" class="hidden" accept="image/*,.pdf" onchange="handleFileInput(event, 'question')">
+      </div>
+
+      <div class="flex-1 space-y-3">
+        <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+          <span>Live Question Feed</span>
+          <span class="text-[11px] text-slate-400 font-normal">Click image to enlarge</span>
+        </div>
+        <div id="question-images-list" class="space-y-3">
+          <div id="question-empty" class="p-8 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs flex flex-col items-center gap-1.5">
+            <i class="fa-solid fa-image text-2xl text-slate-300"></i>
+            <span>No question images uploaded yet</span>
           </div>
-
-          <!-- Question Title -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">
-              Question Title / Header <span class="text-rose-500">*</span>
-            </label>
-            <input 
-              type="text" 
-              id="q-title" 
-              placeholder="e.g. Q1: Binary search tree or SQL query" 
-              class="w-full text-xs sm:text-sm rounded-lg light-input p-2.5 bg-white" 
-              required
-            >
-          </div>
-
-          <!-- Question Statement / Details -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Problem Text</label>
-            <textarea 
-              id="q-details" 
-              rows="3" 
-              placeholder="Paste or type question description, constraints, or sub-parts..." 
-              class="w-full text-xs sm:text-sm rounded-lg light-input p-2.5 bg-white resize-y"
-            ></textarea>
-          </div>
-
-          <!-- Direct Screenshot Paste Dropzone -->
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-xs font-semibold text-slate-700">
-                <i class="fa-solid fa-camera text-indigo-600 mr-1"></i> Screenshot / Image
-              </label>
-              <span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-mono font-medium">
-                Press Ctrl+V to paste
-              </span>
-            </div>
-
-            <div 
-              id="question-dropzone" 
-              class="dropzone p-3.5 rounded-xl text-center cursor-pointer flex flex-col items-center justify-center gap-1"
-              onclick="document.getElementById('question-file-input').click()"
-            >
-              <i class="fa-solid fa-cloud-arrow-up text-indigo-500 text-base"></i>
-              <div class="text-xs font-medium text-slate-700">Click to upload or press <kbd class="px-1 py-0.2 rounded bg-slate-200 text-slate-800 font-mono text-[10px]">Ctrl+V</kbd></div>
-              <input type="file" id="question-file-input" class="hidden" accept="image/*,.pdf" onchange="handleFileSelected(event)">
-            </div>
-
-            <!-- Uploaded Image Previews -->
-            <div id="q-attachments-preview" class="grid grid-cols-3 gap-2 mt-2"></div>
-          </div>
-
-          <!-- Starter Code Box (Collapsible) -->
-          <div class="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
-            <button type="button" onclick="toggleCodeBox()" class="w-full flex items-center justify-between text-xs font-semibold text-slate-700">
-              <span class="flex items-center gap-1.5">
-                <i class="fa-solid fa-code text-indigo-600"></i> Add Starter Code (Optional)
-              </span>
-              <i id="code-toggle-icon" class="fa-solid fa-chevron-down text-slate-400 text-[10px] transition"></i>
-            </button>
-
-            <div id="code-box-container" class="mt-2.5 space-y-2 hidden">
-              <select id="q-code-lang" class="w-full text-xs rounded-lg light-input p-1.5 bg-white">
-                <option value="python">Python</option>
-                <option value="cpp">C / C++</option>
-                <option value="java">Java</option>
-                <option value="javascript">JavaScript</option>
-                <option value="sql">SQL</option>
-                <option value="plaintext">Plain Text</option>
-              </select>
-              <textarea 
-                id="q-code" 
-                rows="3" 
-                placeholder="// Starter code here..." 
-                class="w-full text-xs font-mono rounded-lg light-input p-2 bg-white resize-y"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <button 
-            type="submit" 
-            id="submit-question-btn" 
-            class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.99]"
-          >
-            <i class="fa-solid fa-paper-plane"></i> Upload Question
-          </button>
-        </form>
-
+        </div>
       </div>
     </div>
 
-    <!-- RIGHT: 💡 2. Live Questions & Get Answer (7 columns) -->
-    <div class="lg:col-span-7 flex flex-col gap-4">
-      
-      <!-- Live Feed Title Bar -->
-      <div class="light-card p-4 rounded-2xl bg-white flex items-center justify-between">
+    <!-- BOX 2: 💡 RIGHT - Upload Answer Image -->
+    <div id="answer-box" class="light-card p-5 rounded-2xl bg-white flex flex-col gap-4 border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2">
-          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-lightbulb text-emerald-600"></i> 2. Questions & Answers
-          </h2>
-          <span id="question-count-badge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">0</span>
-        </div>
-
-        <!-- Filter tabs -->
-        <div class="flex items-center gap-1 text-xs">
-          <button onclick="setFilter('all')" class="filter-tab-btn active px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-medium">All</button>
-          <button onclick="setFilter('pending')" class="filter-tab-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">Pending</button>
-          <button onclick="setFilter('solved')" class="filter-tab-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">Solved</button>
-        </div>
-      </div>
-
-      <!-- Feed Container -->
-      <div id="questions-feed" class="space-y-4">
-        <!-- Empty State -->
-        <div id="feed-empty-state" class="light-card p-12 text-center rounded-2xl bg-white flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200">
-          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">
-            <i class="fa-solid fa-inbox"></i>
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-lightbulb"></i>
           </div>
-          <div class="text-sm font-bold text-slate-900">No Questions Yet</div>
-          <p class="text-xs text-slate-500 max-w-xs">Upload a question or paste a screenshot on the left to get answers live.</p>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">2. Answer Images</h2>
+            <p class="text-[11px] text-slate-500">Upload or paste solution screenshots</p>
+          </div>
         </div>
+        <span id="answer-count-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">0</span>
       </div>
 
+      <div 
+        id="answer-dropzone" 
+        class="dropzone p-6 rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center gap-2 transition hover:border-emerald-500 hover:bg-emerald-50/50"
+        onclick="document.getElementById('answer-file-input').click()"
+      >
+        <div class="w-12 h-12 rounded-xl bg-emerald-100/60 text-emerald-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-file-circle-check"></i>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-900">Click to upload or press <kbd class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-mono text-xs font-semibold">Ctrl+V</kbd></div>
+          <div class="text-xs text-slate-500 mt-0.5">Paste or drop Answer image here</div>
+        </div>
+        <input type="file" id="answer-file-input" class="hidden" accept="image/*,.pdf" onchange="handleFileInput(event, 'answer')">
+      </div>
+
+      <div class="flex-1 space-y-3">
+        <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+          <span>Live Answer Feed</span>
+          <span class="text-[11px] text-slate-400 font-normal">Click image to enlarge</span>
+        </div>
+        <div id="answer-images-list" class="space-y-3">
+          <div id="answer-empty" class="p-8 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs flex flex-col items-center gap-1.5">
+            <i class="fa-solid fa-image text-2xl text-slate-300"></i>
+            <span>No answer images uploaded yet</span>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
 
-  <!-- Modal / Floating Answer Drawer -->
-  <div id="answer-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-pop-in">
-    <div class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
-      
-      <!-- Modal Header -->
-      <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <i class="fa-solid fa-pen-nib text-emerald-600"></i> Write Answer for <span id="modal-q-badge" class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-xs font-mono font-bold">Q#1</span>
-        </h3>
-        <button onclick="closeAnswerModal()" class="w-7 h-7 rounded-lg hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-5 overflow-y-auto space-y-3.5 flex-1">
-        <!-- Question Reference -->
-        <div id="modal-q-reference" class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700"></div>
-
-        <!-- Explanation -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Answer / Explanation (Markdown & Math supported)</label>
-          <textarea 
-            id="ans-content" 
-            rows="4" 
-            placeholder="Type explanation, step-by-step logic, or formulas..." 
-            class="w-full text-xs sm:text-sm rounded-lg light-input p-2.5 bg-white resize-y"
-          ></textarea>
-        </div>
-
-        <!-- Code Solution -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label class="text-xs font-semibold text-slate-700">Code Solution</label>
-            <select id="ans-code-lang" class="text-xs rounded-lg light-input px-2 py-0.5 bg-white">
-              <option value="python">Python</option>
-              <option value="cpp">C / C++</option>
-              <option value="java">Java</option>
-              <option value="javascript">JavaScript</option>
-              <option value="sql">SQL</option>
-              <option value="plaintext">Plain Text</option>
-            </select>
-          </div>
-          <textarea 
-            id="ans-code" 
-            rows="5" 
-            placeholder="// Paste working solution code here..." 
-            class="w-full text-xs font-mono rounded-lg light-input p-2.5 bg-slate-900 text-white resize-y"
-          ></textarea>
-        </div>
-
-        <!-- Answer Screenshot Dropzone -->
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-xs font-semibold text-slate-700">Diagram / Solution Screenshot</label>
-            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-mono font-medium">Ctrl+V</span>
-          </div>
-          <div 
-            id="ans-dropzone" 
-            class="dropzone p-3 rounded-xl text-center cursor-pointer flex flex-col items-center justify-center gap-1"
-            onclick="document.getElementById('ans-file-input').click()"
-          >
-            <i class="fa-solid fa-image text-emerald-600 text-base"></i>
-            <div class="text-xs text-slate-600">Click to upload diagram or press <kbd class="px-1 bg-slate-200 rounded text-slate-800 text-[10px]">Ctrl+V</kbd></div>
-            <input type="file" id="ans-file-input" class="hidden" accept="image/*" onchange="handleAnswerFileSelected(event)">
-          </div>
-          <div id="ans-attachments-preview" class="grid grid-cols-4 gap-2 mt-2"></div>
-        </div>
-
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2">
-        <button onclick="closeAnswerModal()" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-200 text-xs font-medium transition">
-          Cancel
-        </button>
-        <button 
-          id="post-answer-btn" 
-          onclick="submitAnswer()" 
-          class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition"
-        >
-          <i class="fa-solid fa-paper-plane"></i> Submit Answer
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Scripts -->
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script src="/js/common.js"></script>
-  <script src="/js/ask.js"></script>
-  <script src="/js/solve.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>
