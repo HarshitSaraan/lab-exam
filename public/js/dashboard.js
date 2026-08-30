@@ -1,13 +1,12 @@
-/**
- * Unified Live Dashboard Logic
- */
-
-const socket = io();
+const socket = io({ transports: ['websocket', 'polling'] });
 let allQuestions = [];
 let activeFilter = 'all';
 let searchQuery = '';
 
 socket.emit('register_role', 'dashboard');
+
+// Polling interval as a resilient fallback for serverless hosting
+setInterval(loadDashboardData, 3000);
 
 // Online stats
 socket.on('online_stats', (stats) => {
@@ -61,17 +60,20 @@ socket.on('all_cleared', () => {
   showToast('All items cleared', 'info');
 });
 
-// Load Initial Data
+// Load Initial & Polling Data
 async function loadDashboardData() {
   try {
     const res = await fetch('/api/questions');
     const data = await res.json();
     if (data.success) {
-      allQuestions = data.questions;
-      renderDashboard();
+      const hasChanged = JSON.stringify(allQuestions) !== JSON.stringify(data.questions);
+      if (hasChanged) {
+        allQuestions = data.questions;
+        renderDashboard();
+      }
     }
   } catch (err) {
-    console.error('Failed to load dashboard data:', err);
+    // Silently ignore polling glitches
   }
 }
 

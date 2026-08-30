@@ -77,15 +77,21 @@ When you start the server, it outputs your local network IP (e.g., `http://192.1
 
 ---
 
-## 🌐 Deploy to Cloud (Render / Railway / Heroku / VPS)
+## 🌐 Deploy to Cloud (Vercel / Render / Railway / Docker)
 
-### Option 1: Render.com (Free)
+### Option 1: Vercel (1-Click Deployment)
+1. Push your code to your GitHub repo `https://github.com/HarshitSaraan/lab-exam.git`.
+2. Go to [vercel.com/new](https://vercel.com/new) and import your `lab-exam` repository.
+3. Vercel will automatically detect `vercel.json` and deploy.
+4. Open your live deployment URL!
+
+### Option 2: Render.com (Full WebSocket Support)
 1. Fork or push this repository to GitHub.
 2. Create a new **Web Service** on [Render](https://render.com).
 3. Set **Build Command**: `npm install`
 4. Set **Start Command**: `npm start`
 
-### Option 2: Docker
+### Option 3: Docker
 ```bash
 docker build -t lab-exam .
 docker run -p 3000:3000 lab-exam

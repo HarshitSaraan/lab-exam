@@ -1,13 +1,12 @@
-/**
- * Solver Portal Logic (Incoming Question Monitor & Solution Broadcaster)
- */
-
-const socket = io();
+const socket = io({ transports: ['websocket', 'polling'] });
 let currentFilter = 'all';
 let questionsList = [];
 let activeSolvingQuestionId = null;
 let ansAttachments = [];
 let typingDebounceTimer = null;
+
+// Polling interval as a resilient fallback for serverless hosting
+setInterval(loadSolverQuestions, 3000);
 
 // Register role
 socket.emit('register_role', 'solver');
@@ -88,17 +87,27 @@ socket.on('all_cleared', () => {
   showToast('All questions cleared', 'info');
 });
 
-// Load Initial Data
+// Load Initial & Polling Data
+let previousQuestionCount = 0;
 async function loadSolverQuestions() {
   try {
     const res = await fetch('/api/questions');
     const data = await res.json();
     if (data.success) {
-      questionsList = data.questions;
-      renderSolverFeed();
+      if (previousQuestionCount > 0 && data.questions.length > previousQuestionCount) {
+        SoundManager.playQuestionAlert();
+        showToast('New question detected!', 'question', 'Incoming Question!');
+      }
+      previousQuestionCount = data.questions.length;
+
+      const hasChanged = JSON.stringify(questionsList) !== JSON.stringify(data.questions);
+      if (hasChanged) {
+        questionsList = data.questions;
+        renderSolverFeed();
+      }
     }
   } catch (e) {
-    console.error('Error fetching questions:', e);
+    // Silently ignore network glitches during polling
   }
 }
 

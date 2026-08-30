@@ -18,17 +18,21 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
+const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION);
+const DATA_DIR = isVercel ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
-const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
+const UPLOAD_DIR = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'public', 'uploads');
 
 // Ensure directories exist
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn('Directory creation warning:', e);
 }
 
 // Database helper
@@ -58,6 +62,7 @@ function saveDb(data) {
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure Multer for file uploads
@@ -369,18 +374,24 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start Server
-server.listen(PORT, '0.0.0.0', () => {
-  const ips = getLocalNetworkIps();
-  console.log(`===================================================`);
-  console.log(`🚀 Lab Exam Live Q&A Portal is Running!`);
-  console.log(`📍 Local:            http://localhost:${PORT}`);
-  ips.forEach((ip) => {
-    console.log(`🌐 Network (Share):  http://${ip}:${PORT}`);
+// Start Server (if not running in serverless / test mode)
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, '0.0.0.0', () => {
+    const ips = getLocalNetworkIps();
+    console.log(`===================================================`);
+    console.log(`🚀 Lab Exam Live Q&A Portal is Running!`);
+    console.log(`📍 Local:            http://localhost:${PORT}`);
+    ips.forEach((ip) => {
+      console.log(`🌐 Network (Share):  http://${ip}:${PORT}`);
+    });
+    console.log(`---------------------------------------------------`);
+    console.log(`👉 Friend Portal:    http://localhost:${PORT}/ask`);
+    console.log(`👉 Solver Portal:    http://localhost:${PORT}/solve`);
+    console.log(`👉 Unified Board:    http://localhost:${PORT}/dashboard`);
+    console.log(`===================================================`);
   });
-  console.log(`---------------------------------------------------`);
-  console.log(`👉 Friend Portal:    http://localhost:${PORT}/ask`);
-  console.log(`👉 Solver Portal:    http://localhost:${PORT}/solve`);
-  console.log(`👉 Unified Board:    http://localhost:${PORT}/dashboard`);
-  console.log(`===================================================`);
-});
+}
+
+module.exports = app;
+module.exports.server = server;
+module.exports.io = io;

@@ -1,11 +1,10 @@
-/**
- * Friend Portal Logic (Question Asker & Answer Tracker)
- */
-
-const socket = io();
+const socket = io({ transports: ['websocket', 'polling'] });
 let currentFilter = 'all';
 let questionsList = [];
 let attachedImages = [];
+
+// Polling interval as a resilient fallback for serverless hosting
+setInterval(loadQuestions, 3000);
 
 // Register role
 socket.emit('register_role', 'friend');
@@ -107,17 +106,28 @@ socket.on('user_typing', (data) => {
   }
 });
 
-// Initial Data Fetch
+// Initial & Polling Data Fetch
+let previousTotalAnswersCount = 0;
 async function loadQuestions() {
   try {
     const res = await fetch('/api/questions');
     const data = await res.json();
     if (data.success) {
-      questionsList = data.questions;
-      renderFeed();
+      const newAnswersCount = data.questions.reduce((acc, q) => acc + (q.answers ? q.answers.length : 0), 0);
+      if (previousTotalAnswersCount > 0 && newAnswersCount > previousTotalAnswersCount) {
+        SoundManager.playAnswerAlert();
+        showToast('New answer received from solver!', 'answer', 'Answer Ready!');
+      }
+      previousTotalAnswersCount = newAnswersCount;
+
+      const hasChanged = JSON.stringify(questionsList) !== JSON.stringify(data.questions);
+      if (hasChanged) {
+        questionsList = data.questions;
+        renderFeed();
+      }
     }
   } catch (err) {
-    console.error('Failed to load questions:', err);
+    // Silently ignore network hiccups in polling
   }
 }
 
